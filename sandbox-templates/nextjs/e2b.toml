@@ -11,7 +11,7 @@
 # const sandbox = await Sandbox.create('vedant-lovable-test-1')
 
 team_id = "797c8008-928d-47de-8a9c-ef75ca88e588"
-start_cmd = "compile_page.sh"
+start_cmd = "/compile_page.sh"
 dockerfile = "e2b.Dockerfile"
 template_name = "vedant-lovable-test-1"
 template_id = "lwltsannu9hu8y6qaqv0"
