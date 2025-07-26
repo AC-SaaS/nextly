@@ -6,7 +6,6 @@ import { getSandboxId, lastAssistantTextMessageContent } from "./utils";
 import z from "zod";
 import { PROMPT } from "@/prompt";
 
-
 export const helloWorld = inngest.createFunction(
   { id: "hello-world" },
   { event: "test/hello.world" },
@@ -22,7 +21,7 @@ export const helloWorld = inngest.createFunction(
       description: "An expert coding angent",
       system: PROMPT,
       model: openai({
-        model: "gemini-2.5-pro",
+        model: "gemini-2.5-flash",
         apiKey: process.env.OPENAI_API_KEY,
         baseUrl: process.env.OPENAI_API_BASE,
 

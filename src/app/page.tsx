@@ -12,7 +12,7 @@ const page = () => {
   const [value, setValue] = useState("");
 
   const trpc = useTRPC();
-  const invoke = useMutation(trpc.invoke.mutationOptions({
+  const createMessage = useMutation(trpc.messages.create.mutationOptions({
     onSuccess: () => {
       toast.success("Background job invoked successfully");
     }
@@ -23,7 +23,7 @@ const page = () => {
     <div className="p-4 max-w-2xl mx-auto">
 
       <Input value={value} onChange={(e) => setValue(e.target.value)} />
-      <Button disabled={invoke.isPending} onClick={() => invoke.mutate({ value: value })}>
+      <Button disabled={createMessage.isPending} onClick={() => createMessage.mutate({ value: value})}>
         Invoke Background Job
       </Button>
     </div>

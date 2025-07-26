@@ -1,7 +1,19 @@
-import { z } from 'zod';
-import { baseProcedure, createTRPCRouter } from '../init';
-import { inngest } from '@/inngest/client';
+//import { z } from 'zod';
+//import { baseProcedure, createTRPCRouter } from '../init';
+//import { inngest } from '@/inngest/client';
+import { messagesRouter } from "@/modules/messages/procedures";
+import { createTRPCRouter } from "../init";
+
+
 export const appRouter = createTRPCRouter({
+  messages: messagesRouter,
+  //fragments: fragmentsRouter,
+})
+
+export type AppRouter = typeof appRouter;
+
+
+/*export const appRouter = createTRPCRouter({
   
   invoke: baseProcedure
     .input(
@@ -32,4 +44,4 @@ export const appRouter = createTRPCRouter({
     }),
 });
 // export type definition of API
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof appRouter; */
