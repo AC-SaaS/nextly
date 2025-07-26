@@ -3,10 +3,21 @@ import prisma from "@/lib/db";
 import { inngest } from "@/inngest/client";
 import { createTRPCRouter, baseProcedure } from "@/trpc/init";
 
-/**
- * Router that handles all “messages”-related procedures.
- */
+
 export const messagesRouter = createTRPCRouter({
+  getMany: baseProcedure
+    .query(async() => {
+      const messages = await prisma.message.findMany({
+        orderBy: {
+          updatedAt: "desc",
+        },
+        include: {
+          fragment: true,
+        }
+      });
+      
+      return messages;
+    }),
   create: baseProcedure
     .input(
       z.object({
@@ -14,7 +25,6 @@ export const messagesRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      // 1. Persist the message
       const createdMessage = await prisma.message.create({
         data: {
           content: input.value,
@@ -23,16 +33,13 @@ export const messagesRouter = createTRPCRouter({
         },
       });
 
-      // 2. Kick off the background job via Inngest
       await inngest.send({
-        name: "test/hello.world",
+        name: "code-agent/run",
         data: { value: input.value },
       });
 
-      // 3. Return the DB record so the client can update instantly
       return createdMessage;
     }),
 });
 
-/** In case you want to import the type elsewhere */
 export type MessagesRouter = typeof messagesRouter;
