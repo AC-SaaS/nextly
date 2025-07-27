@@ -10,3 +10,5 @@ const Page = async ({ params }: Props) => {
         </div>
     )
 }
+
+export default Page
