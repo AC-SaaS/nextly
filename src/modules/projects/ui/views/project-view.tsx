@@ -6,6 +6,7 @@ import { ResizablePanel,
         } from "@/components/ui/resizable"
 import { MessagesContainer } from "../components/messages-container";
 import { Suspense } from "react";
+import { FragmentWeb } from "../components/fragment-web";
 import { useState } from "react";
 import { Fragment } from "@prisma/client";
 import { ProjectHeader } from "../components/project-header";
@@ -16,6 +17,8 @@ interface Props {
 
 export const ProjectView = ({ projectId }: Props) => {
     const  [activeFragment, setActiveFragment] = useState<Fragment | null>(null);    
+
+    const [activeFragment, setActiveFragment] = useState<Fragment | null>(null);
 
     return (
       <div className="h-screen">
@@ -30,7 +33,7 @@ export const ProjectView = ({ projectId }: Props) => {
           </ResizablePanel>
           <ResizableHandle  withHandle/>
           <ResizablePanel defaultSize={65} minSize={50} className="flex flex-col min-h-0">
-            TODO: Preview
+            {!!activeFragment && <FragmentWeb data={activeFragment} />}
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
