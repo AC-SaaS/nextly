@@ -1,6 +1,5 @@
 "use client";
 
-import { useTRPC } from "@/trpc/client";
 import { ResizablePanel, 
          ResizablePanelGroup, 
          ResizableHandle 
@@ -10,20 +9,14 @@ import { Suspense } from "react";
 import { FragmentWeb } from "../components/fragment-web";
 import { useState } from "react";
 import { Fragment } from "@prisma/client";
+import { ProjectHeader } from "../components/project-header";
 
 interface Props {
     projectId: string;
 };
 
 export const ProjectView = ({ projectId }: Props) => {
-    const trpc = useTRPC();
-    /*const { data: project } = useSuspenseQuery(trpc.projects.getOne.queryOptions({
-        id: projectId,
-    }))
-    const { data: messages } = useSuspenseQuery(trpc.messages.getMany.queryOptions({
-        projectId,
-    }))
-    */
+    const  [activeFragment, setActiveFragment] = useState<Fragment | null>(null);    
 
     const [activeFragment, setActiveFragment] = useState<Fragment | null>(null);
 
@@ -31,8 +24,11 @@ export const ProjectView = ({ projectId }: Props) => {
       <div className="h-screen">
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel defaultSize={35} minSize={20} className="flex flex-col min-h-0">
+            <Suspense fallback={<div>Loading Project...</div>}>
+              <ProjectHeader projectId={projectId} />
+            </Suspense>
             <Suspense fallback={<div>Loading...</div>}>
-              <MessagesContainer projectId={projectId} />
+              <MessagesContainer projectId={projectId} activeFragment={activeFragment} setActiveFragment={setActiveFragment} />
             </Suspense>
           </ResizablePanel>
           <ResizableHandle  withHandle/>
