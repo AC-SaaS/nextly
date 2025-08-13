@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { PROJECT_TEMPLATES } from "../../constants";
+import { useClerk } from "@clerk/nextjs";
 
 const formSchema = z.object({
   value: z.string()
@@ -24,7 +25,9 @@ const formSchema = z.object({
 export const ProjectForm = () => {
   const router = useRouter();
   const trpc = useTRPC();
-  const queryClient = useQueryClient();    
+  const queryClient = useQueryClient(); 
+  const clerk = useClerk();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,17 +41,23 @@ export const ProjectForm = () => {
       onSuccess: (data) => {
         queryClient.invalidateQueries(trpc.projects.getMany.queryOptions());
         router.push(`/projects/${data.id}`);
-        form.reset();
+        // form.reset();
         //todo: invalid usage status
       },
-      onError: () => {
-        toast.error("Failed to create project");
+      onError: (error) => {
+        toast.error(error.message);
+
+        if (error.data?.code === "UNAUTHORIZED") {
+          clerk.openSignIn();
+          // another way
+          // router.push("/sign-in");
+        }
       },
     }
   ));
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // ✅ matches { value: string }
+    // matches { value: string }
     await createProject.mutateAsync({ value: values.value });
   };
 

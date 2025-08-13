@@ -1,21 +1,24 @@
 import { z } from "zod";
 import prisma from "@/lib/db";
 import { inngest } from "@/inngest/client";
-import { createTRPCRouter, baseProcedure } from "@/trpc/init";
+import { 
+  createTRPCRouter, 
+  protectedProcedure } from "@/trpc/init";
 import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
 
 export const projectsRouter = createTRPCRouter({
-  getOne: baseProcedure
+  getOne: protectedProcedure
     .input(
       z.object({
         id: z.string().min(1, {message: "Project ID is required"}),
       }),
     )
-    .query(async({ input }) => {
+    .query(async({ input, ctx }) => {
       const exsitingProject = await prisma.project.findUnique({
         where: {
           id: input.id,
+          userId: ctx.auth.userId,
         },
       });
 
@@ -26,9 +29,12 @@ export const projectsRouter = createTRPCRouter({
       return exsitingProject;
     }),
 
-  getMany: baseProcedure
-    .query(async() => {
+  getMany: protectedProcedure
+    .query(async ({ ctx }) => {
       const projects = await prisma.project.findMany({
+        where: {
+          userId: ctx.auth.userId,
+        },
         orderBy: {
           updatedAt: "desc",
         },
@@ -36,7 +42,7 @@ export const projectsRouter = createTRPCRouter({
       
       return projects;
     }),
-  create: baseProcedure
+  create: protectedProcedure
     .input(
       z.object({
         value: z.string()
@@ -44,17 +50,18 @@ export const projectsRouter = createTRPCRouter({
           .max(1000, "Prompt cannot be longer than 1000 characters"),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const createdProject = await prisma.project.create({
         data: {
-            name: generateSlug(2, { format: "kebab" }),
-            messages: {
-                create: {
-                    content: input.value,
-                    role: "USER",
-                    type: "RESULT",
-                }
+          userId: ctx.auth.userId,
+          name: generateSlug(2, { format: "kebab" }),
+          messages: {
+            create: {
+              content: input.value,
+              role: "USER",
+              type: "RESULT",
             }
+          }
         }
       })
 
