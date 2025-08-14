@@ -42,7 +42,8 @@ export const ProjectForm = () => {
         queryClient.invalidateQueries(trpc.projects.getMany.queryOptions());
         router.push(`/projects/${data.id}`);
         // form.reset();
-        //todo: invalid usage status
+
+        queryClient.invalidateQueries(trpc.usage.status.queryOptions());
       },
       onError: (error) => {
         toast.error(error.message);
@@ -51,6 +52,10 @@ export const ProjectForm = () => {
           clerk.openSignIn();
           // another way
           // router.push("/sign-in");
+        }
+
+        if (error.data?.code === "TOO_MANY_REQUESTS") {
+          router.push("/pricing");
         }
       },
     }
