@@ -3,13 +3,28 @@ import { openai, createAgent, createTool, createNetwork, type Tool, type Message
 import { Sandbox } from "e2b";
 import { getSandboxId, lastAssistantTextMessageContent } from "./utils";
 import z from "zod";
-import { PROMPT } from "@/prompt";
+import { FRAGMENT_TITLE_PROMPT, PROMPT, RESPONSE_PROMPT } from "@/prompt";
 import prisma from "@/lib/db";
+import { parseAgentOutput } from "./utils";
 
 interface AgentState {
   summary: string;
   files: { [path: string]: string };
 }
+
+  // const parseAgentOutput = (value: Message[]) => {
+  //   const output = value[0];
+    
+  //   if (output.type !== "text") {
+  //     return "Fragment";
+  //   }
+  //   if (Array.isArray(output.content)) {
+  //     return output.content.map((txt) => txt.text).join(" ");
+  //   } else {
+  //     return output.content;
+  //   }
+  // }
+
 
 export const codeAgentFunction = inngest.createFunction(
   { id: "code-agent" },
@@ -50,6 +65,8 @@ export const codeAgentFunction = inngest.createFunction(
     },
       { messages: previousMessages },
     );
+
+    
 
     const codeAgent = createAgent<AgentState>({
       name: "codeAgent",
@@ -188,6 +205,39 @@ export const codeAgentFunction = inngest.createFunction(
 
     const result = await network.run(event.data.value, { state });
 
+    const fragmentTitleGenerator = createAgent({
+      name: "fragment-title-generator",
+      description: "A fragment title generator",
+      system: PROMPT,
+      model: openai({
+        model: "gemini-2.5-flash",
+        apiKey: process.env.OPENAI_API_KEY,
+        baseUrl: process.env.OPENAI_API_BASE,
+        defaultParameters: { temperature: 0.1 },
+      }),
+    });
+
+    const responseGenerator = createAgent({
+      name: "response-generator",
+      description: "A response generator",
+      system: RESPONSE_PROMPT,
+      model: openai({
+        model: "gemini-2.5-flash",
+        apiKey: process.env.OPENAI_API_KEY,
+        baseUrl: process.env.OPENAI_API_BASE,
+        defaultParameters: { temperature: 0.1 },
+      }),
+    });
+
+    const { output: fragmentTitleOutput } = await fragmentTitleGenerator.run(result.state.data.summary);
+    const { output: responseOutput } = await responseGenerator.run(result.state.data.summary);
+
+    // Alternate version                              | 
+    // const generateFragmentTItle = () => {          |
+    //   const output = fragmentTitleOutput[0];       |  
+    // }                                             \/
+
+
     const isError = 
       !result.state.data.summary || Object.keys(result.state.data.files || {}).length === 0;
 
@@ -211,13 +261,13 @@ export const codeAgentFunction = inngest.createFunction(
       return await prisma.message.create({
         data: {
           projectId: event.data.projectId,
-          content: result.state.data.summary,
+          content: parseAgentOutput(responseOutput),
           role: "ASSISTANT",
           type: "RESULT",
           fragment: {
             create: {
               sandboxUrl: sandboxUrl,
-              title: "Fragment",
+              title: parseAgentOutput(fragmentTitleOutput),
               files: result.state.data.files,
             }
           }
