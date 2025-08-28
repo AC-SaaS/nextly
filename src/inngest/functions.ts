@@ -1,16 +1,30 @@
 import { inngest } from "./client";
-import { openai, createAgent, createTool, createNetwork, type Tool } from "@inngest/agent-kit";
-
+import { openai, createAgent, createTool, createNetwork, type Tool, type Message, createState } from "@inngest/agent-kit";
 import { Sandbox } from "e2b";
 import { getSandboxId, lastAssistantTextMessageContent } from "./utils";
 import z from "zod";
-import { PROMPT } from "@/prompt";
+import { FRAGMENT_TITLE_PROMPT, PROMPT, RESPONSE_PROMPT } from "@/prompt";
 import prisma from "@/lib/db";
+import { parseAgentOutput } from "./utils";
 
 interface AgentState {
   summary: string;
   files: { [path: string]: string };
 }
+
+  // const parseAgentOutput = (value: Message[]) => {
+  //   const output = value[0];
+    
+  //   if (output.type !== "text") {
+  //     return "Fragment";
+  //   }
+  //   if (Array.isArray(output.content)) {
+  //     return output.content.map((txt) => txt.text).join(" ");
+  //   } else {
+  //     return output.content;
+  //   }
+  // }
+
 
 export const codeAgentFunction = inngest.createFunction(
   { id: "code-agent" },
@@ -21,7 +35,39 @@ export const codeAgentFunction = inngest.createFunction(
       const sandbox = await Sandbox.create("vedant-lovable-test-1");
       return sandbox.sandboxId;
     });
+
+    const previousMessages = await step.run("get-previous-messages", async () => {
+      const formattedMessages: Message[] = [];
     
+      const messages = await prisma.message.findMany({
+        where: {
+          projectId: event.data.projectId,
+        },
+        orderBy: {
+          createdAt: "desc", //channge it to asc if AI hallucinates
+        },
+      });
+
+      for (const message of messages) {
+        formattedMessages.push({
+          type: "text",
+          role: message.role === "ASSISTANT" ? "assistant" : "user",
+          content: message.content,
+        });
+      }
+
+      return formattedMessages;
+    });
+ 
+    const state = createState<AgentState>({
+      summary: "",
+      files: {},
+    },
+      { messages: previousMessages },
+    );
+
+    
+
     const codeAgent = createAgent<AgentState>({
       name: "codeAgent",
       description: "An expert coding angent",
@@ -78,9 +124,9 @@ export const codeAgentFunction = inngest.createFunction(
             ),
           }),
           handler: async ({ files }, { step, network }: Tool.Options<AgentState>) => {
-            /**
+            /*
              * {
-             * "/app.tsx": <p>app page</p>,
+             * "/app.tsx" : <p>app page</p>,
              * }
              */
             const newFiles = await step?.run("createOrUpdateFiles", async () => {
@@ -141,14 +187,15 @@ export const codeAgentFunction = inngest.createFunction(
        },
       },
     });
-
+      
     const network = createNetwork<AgentState>({
       name: "coding-agent-network",
       agents: [codeAgent],
       maxIter: 15,
+      defaultState: state,
       router: async ({ network }) => {
         const summary = network.state.data.summary;
-
+      
         if (summary) {
           return;
         }
@@ -156,7 +203,40 @@ export const codeAgentFunction = inngest.createFunction(
       }
     })
 
-    const result = await network.run(event.data.value);
+    const result = await network.run(event.data.value, { state });
+
+    const fragmentTitleGenerator = createAgent({
+      name: "fragment-title-generator",
+      description: "A fragment title generator",
+      system: PROMPT,
+      model: openai({
+        model: "gemini-2.5-flash",
+        apiKey: process.env.OPENAI_API_KEY,
+        baseUrl: process.env.OPENAI_API_BASE,
+        defaultParameters: { temperature: 0.1 },
+      }),
+    });
+
+    const responseGenerator = createAgent({
+      name: "response-generator",
+      description: "A response generator",
+      system: RESPONSE_PROMPT,
+      model: openai({
+        model: "gemini-2.5-flash",
+        apiKey: process.env.OPENAI_API_KEY,
+        baseUrl: process.env.OPENAI_API_BASE,
+        defaultParameters: { temperature: 0.1 },
+      }),
+    });
+
+    const { output: fragmentTitleOutput } = await fragmentTitleGenerator.run(result.state.data.summary);
+    const { output: responseOutput } = await responseGenerator.run(result.state.data.summary);
+
+    // Alternate version                              | 
+    // const generateFragmentTItle = () => {          |
+    //   const output = fragmentTitleOutput[0];       |  
+    // }                                             \/
+
 
     const isError = 
       !result.state.data.summary || Object.keys(result.state.data.files || {}).length === 0;
@@ -181,20 +261,20 @@ export const codeAgentFunction = inngest.createFunction(
       return await prisma.message.create({
         data: {
           projectId: event.data.projectId,
-          content: result.state.data.summary,
+          content: parseAgentOutput(responseOutput),
           role: "ASSISTANT",
           type: "RESULT",
           fragment: {
             create: {
               sandboxUrl: sandboxUrl,
-              title: "Fragment",
+              title: parseAgentOutput(fragmentTitleOutput),
               files: result.state.data.files,
             }
           }
         },
       });
     })
-
+      
     return {
       url: sandboxUrl,
       title: "Fragment",

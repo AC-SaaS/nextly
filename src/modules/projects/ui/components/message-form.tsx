@@ -52,7 +52,7 @@ export const MessageForm = ({ projectId }: Props) => {
 
         // if (error.data?.code === "TOO_MANY_REQUESTS") {
         //   router.push("/pricing");
-        // }
+        // }W
       },
     }
   ));
