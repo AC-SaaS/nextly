@@ -11,7 +11,6 @@ import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { Usage } from "./usage";
-import { useRouter } from "next/router";
 
 interface Props {
   projectId: string;
@@ -47,7 +46,7 @@ export const MessageForm = ({ projectId }: Props) => {
         }));
         queryClient.invalidateQueries(trpc.usage.status.queryOptions());
       },
-      onError: (error) => {
+      onError: () => {
         toast.error("Failed to create message");
 
         // if (error.data?.code === "TOO_MANY_REQUESTS") {

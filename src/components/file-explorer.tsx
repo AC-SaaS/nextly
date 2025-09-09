@@ -133,7 +133,7 @@ export const FileExplorer = ({
         setCopied(false);
       }, 2000);
     }
-  }, [selectedFile]);
+  }, [selectedFile, files]);
 
   return (
     <ResizablePanelGroup direction="horizontal">    

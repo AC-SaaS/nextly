@@ -8,7 +8,6 @@ import {
   SunMoonIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import {
   DropdownMenu,
@@ -29,7 +28,7 @@ interface Props {
 
 export const ProjectHeader = ({ projectId }: Props) => {
   const trpc = useTRPC();
-  const { data: project } = useSuspenseQuery(trpc.projects.getOne.queryOptions({
+  useSuspenseQuery(trpc.projects.getOne.queryOptions({
     id: projectId,
   }));
 
