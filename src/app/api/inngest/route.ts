@@ -1,12 +1,6 @@
-import { serve } from "inngest/next";
+import { Inngest } from "inngest";
 
-import { inngest } from "@/inngest/client";
-import { codeAgentFunction } from "@/inngest/functions";
-
-// Create an API that serves zero functions
-export const { GET, POST, PUT } = serve({
-  client: inngest,
-  functions: [
-    codeAgentFunction,
-  ],
+export const inngest = new Inngest({
+  id: "bbcai-app", // can be any unique identifier for your app
+  signingKey: process.env.INNGEST_SIGNING_KEY!,
 });
