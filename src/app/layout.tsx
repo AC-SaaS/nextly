@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Build By Chat",
-  description: "Build Amazing Next.js Apps in seconds!",
+  title: "Build Apps Without Coding – AI Powered",
+  description: "Turn your ideas into production-ready Next.js apps with AI. Nextly makes app development simple, fast, and code-free.",
 };
 
 export default function RootLayout({
