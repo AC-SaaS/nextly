@@ -2,11 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import {
   SignedIn,
   SignedOut,
-  // SignInButton,
   SignUpButton,
 } from "@clerk/nextjs";
 
@@ -21,6 +19,7 @@ export const Navbar = () => {
 
   const navItems = [
     { name: "Projects", href: "/projects" },
+    { name: "Features", href: "/features" },
     { name: "Pricing", href: "/pricing" },
     { name: "Community", href: "/community" },
     { name: "About", href: "/about" },

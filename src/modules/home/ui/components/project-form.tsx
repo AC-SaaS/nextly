@@ -15,6 +15,7 @@ import { Form, FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { PROJECT_TEMPLATES } from "../../constants";
 import { useClerk } from "@clerk/nextjs";
+import { Brain } from "lucide-react";
 
 // Liquid glass wrapper
 const GlassEffect: React.FC<{ children: React.ReactNode; className?: string }> = ({
@@ -87,14 +88,15 @@ export const ProjectForm = () => {
   const [isFocused, setIsFocused] = useState(false);
   const isPending = createProject.isPending;
   const isButtonDisabled = isPending || !form.formState.isValid;
+  const [deepThinking, setDeepThinking] = useState(false);
 
   return (
     <Form {...form}>
       <section className="flex flex-col items-center w-full">
         <GlassEffect
           className={cn(
-            "w-full max-w-3xl p-6 transition-all duration-500",
-            isFocused && "scale-[1.01] ring-2 ring-blue-400/40"
+            "w-full max-w-3xl p-6 transition-all duration-500 border border-primary/20 shadow-lg",
+            isFocused && "scale-[1.01] ring-2 ring-primary/40"
           )}
         >
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 relative">
@@ -112,7 +114,7 @@ export const ProjectForm = () => {
                   placeholder="Ask a question or start a conversation..."
                   className={cn(
                     "w-full resize-none border-none bg-transparent text-foreground placeholder:text-muted-foreground focus:ring-0 outline-none transition-all duration-300",
-                    "scrollbar-thin scrollbar-thumb-blue-400/50 scrollbar-track-transparent hover:scrollbar-thumb-blue-500/70"
+                    "scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent hover:scrollbar-thumb-primary/70"
                   )}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
@@ -126,26 +128,59 @@ export const ProjectForm = () => {
                 />
               )}
             />
+
             <div className="flex items-center justify-between gap-x-2">
-              <div className="text-[10px] text-muted-foreground font-mono">
-                <kbd className="inline-flex h-5 select-none items-center gap-x-1 rounded border border-white/20 bg-white/10 px-1.5 font-mono text-[10px] font-medium backdrop-blur-sm">
-                  <span>⌘</span>
-                  <span> + Enter</span>
-                </kbd>
-                &nbsp;to submit
-              </div>
-              <Button
+              {/* Left side: Deep Thinking toggle */}
+              <button
+                type="button"
+                onClick={() => setDeepThinking((prev) => !prev)}
                 className={cn(
-                  "size-8 rounded-full transition-all hover:scale-105",
-                  "bg-white/30 dark:bg-white/10 backdrop-blur-md border border-white/20 shadow-sm",
-                  isButtonDisabled &&
-                    "opacity-50 cursor-not-allowed hover:scale-100 hover:bg-white/30"
+                  "relative group flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium transition-all",
+                  "backdrop-blur-md border shadow-sm",
+                  deepThinking
+                    ? "bg-primary text-primary-foreground border-primary/50 shadow-md scale-105"
+                    : "bg-white/20 dark:bg-white/10 border-white/20 text-muted-foreground hover:bg-white/30"
                 )}
-                disabled={isButtonDisabled}
-                onClick={form.handleSubmit(onSubmit)}
               >
-                {isPending ? <Loader2Icon className="animate-spin size-4" /> : <ArrowUpIcon className="size-4" />}
-              </Button>
+                <Brain
+                  className={cn(
+                    "size-3 transition-transform duration-300",
+                    deepThinking ? "rotate-12 text-primary-foreground" : "text-primary"
+                  )}
+                />
+                Deep Thinking
+                {/* Tooltip on hover */}
+                <span className="absolute bottom-full mb-1 hidden group-hover:block text-[9px] text-muted-foreground bg-white/80 dark:bg-black/80 px-2 py-0.5 rounded-md shadow-sm whitespace-nowrap">
+                  use when you want more in-depth reasoning
+                </span>
+              </button>
+
+              {/* Right side: kbd + send button */}
+              <div className="flex items-center gap-x-2">
+                <div className="text-[10px] text-muted-foreground font-sans">
+                  <kbd className="inline-flex h-5 select-none items-center gap-x-1 rounded border border-primary/20 bg-primary/10 px-1.5 font-mono text-[10px] font-medium backdrop-blur-sm">
+                    <span className="text-primary font-bold">⌘</span>
+                    <span className="text-primary font-bold"> + Enter</span>
+                  </kbd>
+                </div>
+
+                <Button
+                  className={cn(
+                    "size-8 rounded-full transition-all hover:scale-105",
+                    isButtonDisabled
+                      ? "bg-white/30 dark:bg-white/10 backdrop-blur-md border border-white/20 shadow-sm opacity-50 cursor-not-allowed hover:scale-100 hover:bg-white/30"
+                      : "bg-primary text-primary-foreground shadow-md hover:bg-primary/40"
+                  )}
+                  disabled={isButtonDisabled}
+                  onClick={form.handleSubmit(onSubmit)}
+                >
+                  {isPending ? (
+                    <Loader2Icon className="animate-spin size-4 text-primary bg-primary" />
+                  ) : (
+                    <ArrowUpIcon className="size-4" />
+                  )}
+                </Button>
+              </div>
             </div>
           </form>
         </GlassEffect>
@@ -155,7 +190,7 @@ export const ProjectForm = () => {
             <Button
               variant="outline"
               size="sm"
-              className="bg-white/25 dark:bg-neutral-900/20 backdrop-blur-md border border-white/30"
+              className="bg-white/25 dark:bg-neutral-900/20 backdrop-blur-md border border-white/30 hover:bg-primary/40 border-primary/20 shadow-sm hover:scale-105"
               onClick={() => onSelect(template.prompt)}
               >
                 {template.emoji} {template.title}

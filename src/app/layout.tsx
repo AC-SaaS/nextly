@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, DM_Serif_Text } from "next/font/google";
 import "./globals.css";
 
 import { TRPCReactProvider } from "@/trpc/client";
@@ -16,6 +16,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const dmSerifText = DM_Serif_Text({
+  subsets: ["latin"],
+  weight: "400", // required for DM Serif Text
+  variable: "--font-dm-serif-text",
 });
 
 export const metadata: Metadata = {
