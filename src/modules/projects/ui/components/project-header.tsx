@@ -1,12 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  SunMoonIcon,
-} from "lucide-react";
+import { ChevronDownIcon, ChevronLeftIcon, SunMoonIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/trpc/client";
 import {
@@ -15,73 +13,44 @@ import {
   DropdownMenuItem,
   DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSub,
   DropdownMenuSubContent,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LightPullThemeSwitcher } from "@/components/21stdev/light-pull-theme-switcher";
 
 interface Props {
-    projectId: string;
+  projectId: string;
 }
 
 export const ProjectHeader = ({ projectId }: Props) => {
   const trpc = useTRPC();
-  useSuspenseQuery(trpc.projects.getOne.queryOptions({
-    id: projectId,
-  }));
+  const { data: project } = useSuspenseQuery(
+    trpc.projects.getOne.queryOptions({ id: projectId })
+  );
 
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="p-2 flex items-center justify-between border-b">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="focus-visible:ring-0 hover:bg-transparent hover:opacity-75 transition-opacity pl-2!">
-            <Image
-              src="/logo.svg"
-              alt="Vibe"
-              width={24}
-              height={24}
-              className="shrink-0"
-            />
-            <span className="text-sm font-medium">Vibe</span>
-            <ChevronDownIcon className="size-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent side="bottom" align="start">
-          <DropdownMenuItem asChild>
-            <Link href={"/"}>
-              <ChevronLeftIcon className="size-4" />
-              <span className="text-sm font-medium">Back to dashboard</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuSub>
-            <DropdownMenuTrigger className="gap-2">
-              <SunMoonIcon className="size-4 text-muted-foreground" />
-              <span >Appearance</span>
-            </DropdownMenuTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup value={theme} onValueChange={(value) => setTheme(value)}>
-                  <DropdownMenuRadioItem value="light">
-                    <span>Light</span>
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="dark">
-                    <span>Dark</span>
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="system">
-                    <span>System</span>
-                  </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-50">
+      {/* Left: Logo + Project Name */}
+      <div className="flex items-center gap-3">
+        <Image src="/logo.svg" alt="Vibe" width={32} height={32} />
+        <div className="flex flex-col">
+          <span className="text-lg font-bold text-foreground">
+            {project?.name ?? "Project"}
+          </span>
+          <Link
+            href="/"
+            className="flex items-center text-sm text-muted-foreground hover:text-primary gap-1"
+          >
+            <ChevronLeftIcon size={16} /> Back to dashboard
+          </Link>
+        </div>
+      </div>
+      <LightPullThemeSwitcher />
     </header>
-  )
+  );
 };
-
