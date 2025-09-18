@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import { PricingTable } from "@clerk/nextjs";
-
-import { dark } from "@clerk/themes";
+import { dark } from "@clerk/themes"; // only dark theme exists
 import { useCurrentTheme } from "@/hooks/use-current-theme";
 
 const Page = () => {
@@ -21,13 +20,17 @@ const Page = () => {
             className="hidden md:block"
           />
         </div>
+
         <h1 className="text-xl md:text-3xl font-bold text-center">Pricing</h1>
         <p className="text-md md:text-lg text-muted-foreground text-center">
           Choose the plan that fits your needs
         </p>
+
+        {/* Force remount on theme change using key */}
         <PricingTable
+          key={currentTheme}
           appearance={{
-            baseTheme: currentTheme === "dark" ? dark : undefined,
+            baseTheme: currentTheme === "dark" ? dark : undefined, // undefined = default/light
             elements: {
               pricingTableCard: "border! shadow-none! rounded-lg!",
             },

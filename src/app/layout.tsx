@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, DM_Serif_Text } from "next/font/google";
 import "./globals.css";
 
 import { TRPCReactProvider } from "@/trpc/client";
@@ -18,9 +18,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// const dmSerifText = DM_Serif_Text({
+//   subsets: ["latin"],
+//   weight: "400", // required for DM Serif Text
+//   variable: "--font-dm-serif-text",
+// });
+
 export const metadata: Metadata = {
-  title: "Build By Chat",
-  description: "Build Amazing Next.js Apps in seconds!",
+  title: "Build Apps Without Coding – AI Powered",
+  description: "Turn your ideas into production-ready Next.js apps with AI. Nextly makes app development simple, fast, and code-free.",
 };
 
 export default function RootLayout({
