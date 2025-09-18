@@ -61,10 +61,7 @@ const SplitText: React.FC<SplitTextProps> = ({
       };
 
       if (el._rbsplitInstance) {
-        try {
-          el._rbsplitInstance.revert();
-        } catch (_) {}
-        el._rbsplitInstance = undefined;
+        el._rbsplitInstance.revert();
       }
 
       const startPct = (1 - threshold) * 100;
@@ -126,9 +123,7 @@ const SplitText: React.FC<SplitTextProps> = ({
         ScrollTrigger.getAll().forEach(st => {
           if (st.trigger === el) st.kill();
         });
-        try {
-          splitInstance.revert();
-        } catch (_) {}
+        splitInstance.revert();
         el._rbsplitInstance = undefined;
       };
     },

@@ -18,11 +18,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const dmSerifText = DM_Serif_Text({
-  subsets: ["latin"],
-  weight: "400", // required for DM Serif Text
-  variable: "--font-dm-serif-text",
-});
+// const dmSerifText = DM_Serif_Text({
+//   subsets: ["latin"],
+//   weight: "400", // required for DM Serif Text
+//   variable: "--font-dm-serif-text",
+// });
 
 export const metadata: Metadata = {
   title: "Build Apps Without Coding – AI Powered",

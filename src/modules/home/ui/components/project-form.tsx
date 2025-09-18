@@ -188,6 +188,7 @@ export const ProjectForm = () => {
         <div className="flex-wrap justify-center gap-2 hidden md:flex mt-4">
           {PROJECT_TEMPLATES.map((template) => (
             <Button
+              key={template.prompt}
               variant="outline"
               size="sm"
               className="bg-white/25 dark:bg-neutral-900/20 backdrop-blur-md border border-white/30 hover:bg-primary/40 border-primary/20 shadow-sm hover:scale-105"

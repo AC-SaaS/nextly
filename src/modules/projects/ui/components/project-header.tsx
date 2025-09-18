@@ -2,23 +2,22 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
+// import { useTheme } from "next-themes";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ChevronDownIcon, ChevronLeftIcon, SunMoonIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronLeftIcon } from "lucide-react";
 import { useTRPC } from "@/trpc/client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuPortal,
+//   DropdownMenuSeparator,
+//   DropdownMenuRadioGroup,
+//   DropdownMenuRadioItem,
+//   DropdownMenuSub,
+//   DropdownMenuSubContent,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
 import { LightPullThemeSwitcher } from "@/components/21stdev/light-pull-theme-switcher";
 
 interface Props {
@@ -31,7 +30,7 @@ export const ProjectHeader = ({ projectId }: Props) => {
     trpc.projects.getOne.queryOptions({ id: projectId })
   );
 
-  const { theme, setTheme } = useTheme();
+  // const { theme, setTheme } = useTheme();
 
   return (
     <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-50">

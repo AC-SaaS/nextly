@@ -1,5 +1,5 @@
 import ProjectForm from "@/modules/home/ui/components/project-form";
-import Image from "next/image";
+// import Image from "next/image";
 // import { HeroPill } from "@/components/21stdev/hero-pill";
 import { Announcement } from "@/components/21stdev/announcement";
 import { AnnouncementTitle } from "@/components/21stdev/announcement";

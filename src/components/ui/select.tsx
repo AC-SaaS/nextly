@@ -46,7 +46,7 @@ const Select = ({ data, defaultValue }: SelectProps) => {
         type: "spring",
         stiffness: 300,
         damping: 25,
-        ease: "0.65, 0, 0.35, 1",
+        // ease: "0.65, 0, 0.35, 1",
       }}
     >
       <motion.div className="flex items-center justify-center">
@@ -167,7 +167,7 @@ const SelectItem = ({
       className={`group flex cursor-pointer items-center justify-between gap-2 p-4 py-2 hover:bg-accent hover:text-accent-foreground ${
         noDescription && "!p-2"
       }`}
-      variants={animation}
+      //variants={animation}
       initial="hidden"
       animate="visible"
       exit="exit"
