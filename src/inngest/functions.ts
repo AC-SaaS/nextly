@@ -1,5 +1,11 @@
 import { inngest } from "./client";
-import { openai, createAgent, createTool, createNetwork, type Tool, type Message, createState } from "@inngest/agent-kit";
+import { openai,
+         createAgent, 
+         createTool, 
+         createNetwork, 
+         type Tool, 
+         type Message, 
+         createState } from "@inngest/agent-kit";
 import { Sandbox } from "e2b";
 import { getSandboxId, lastAssistantTextMessageContent } from "./utils";
 import z from "zod";
@@ -213,7 +219,7 @@ export const codeAgentFunction = inngest.createFunction(
       description: "A fragment title generator",
       system: PROMPT,
       model: openai({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-flash-lite",
         apiKey: process.env.OPENAI_API_KEY,
         baseUrl: process.env.OPENAI_API_BASE,
         defaultParameters: { temperature: 0.1 },
@@ -225,7 +231,7 @@ export const codeAgentFunction = inngest.createFunction(
       description: "A response generator",
       system: RESPONSE_PROMPT,
       model: openai({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-flash-lite",
         apiKey: process.env.OPENAI_API_KEY,
         baseUrl: process.env.OPENAI_API_BASE,
         defaultParameters: { temperature: 0.1 },
