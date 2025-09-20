@@ -32,7 +32,7 @@ const Select = ({ data, defaultValue }: SelectProps) => {
     } else {
       setSelected(data?.[0])
     }
-  }, [defaultValue])
+  }, [data, defaultValue])
 
   const onSelect = (value: string) => {
     const item = data?.find((i) => i.value === value)
