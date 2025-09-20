@@ -17,7 +17,7 @@ const Page = () => {
         <div className="flex flex-col items-center">
           <Announcement className="hover:bg-primary hover:text-primary-foreground">
             <AnnouncementTitle>
-              Now with Nvidia Nemotron-70B
+              Now with Grok 4
               <ArrowUpRightIcon size={16} className="shrink-0 text-muted-foreground" />
             </AnnouncementTitle>
           </Announcement>
