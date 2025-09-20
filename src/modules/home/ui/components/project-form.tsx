@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { PROJECT_TEMPLATES } from "../../constants";
 import { useClerk } from "@clerk/nextjs";
 import { Brain } from "lucide-react";
+//import { Socials } from "./socials";
 
 // Liquid glass wrapper
 const GlassEffect: React.FC<{ children: React.ReactNode; className?: string }> = ({
@@ -198,6 +199,7 @@ export const ProjectForm = () => {
               </Button>
           ))}
         </div>
+        {/* <Socials /> */}
       </section>
 
       {/* Light mode adjustments */}

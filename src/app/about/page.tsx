@@ -1,18 +1,18 @@
 "use client";
 
-import { Announcement } from "@/components/21stdev/announcement";
-import { AnnouncementTitle } from "@/components/21stdev/announcement";
-import { ArrowUpRightIcon, ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { InteractiveHoverButton } from "@/components/21stdev/interactive-hover-button";
 import { useRouter } from "next/navigation";
 import { LightPullThemeSwitcher } from "@/components/21stdev/light-pull-theme-switcher";
+import { CiMail } from "react-icons/ci";
+import { FaGithub, FaXTwitter, FaLinkedin, FaKaggle, FaYoutube, FaSpotify, FaMedium } from "react-icons/fa6";
+import { SiLeetcode } from "react-icons/si";
 
 const Page = () => {
   const router = useRouter();
 
   return (
     <div className="flex flex-col w-full px-6 md:px-16 py-8 md:py-16 text-foreground">
-      
       {/* Back Button */}
       <button
         onClick={() => router.back()}
@@ -26,15 +26,9 @@ const Page = () => {
       <section className="space-y-6 md:space-y-8">
         {/* Announcement bar */}
         <div className="flex flex-col items-start">
-          <Announcement className="hover:bg-primary hover:text-primary-foreground transition-all">
-            <AnnouncementTitle className="flex items-center">
-              About <span className="font-bold text-primary italic">Nextly</span>
-              <ArrowUpRightIcon
-                size={16}
-                className="shrink-0 text-muted-foreground ml-2"
-              />
-            </AnnouncementTitle>
-          </Announcement>
+          <div className="flex justify-start pt-4 gap-3" onClick={() => router.push("/")}>
+            <InteractiveHoverButton text="Nextly" />
+          </div>
         </div>
 
         {/* Main Text */}
@@ -52,13 +46,21 @@ const Page = () => {
           </p>
 
           <p className="text-sm md:text-base leading-relaxed md:leading-7 text-left">
-            This is my story so far. From nothing, I’m <span className="underline font-bold">building</span>. From nowhere, I’m aiming everywhere. And BuildByChat is only the beginning.
+            This is my story so far. From nothing, I’m <span className="underline font-bold">building</span>. From nowhere, I’m aiming everywhere. And Nextly is only the beginning.
           </p>
         </div>
 
-        {/* CTA */}
-        <div className="flex justify-start pt-4" onClick={() => router.push("/")}>
-          <InteractiveHoverButton text="Try Now" />
+        {/* Socials */}
+        <div className="flex gap-6 pt-4">
+          <a href="mailto:vedantxn@gmail.com" className="transition-transform hover:text-primary hover:rotate-15"><CiMail size={28} /></a>
+          <a href="https://github.com/vedantxn" target="_blank" className="transition-transform hover:text-primary hover:rotate-15"><FaGithub size={28} /></a>
+          <a href="https://x.com/vedantxn" target="_blank" className="transition-transform hover:text-primary hover:rotate-15"><FaXTwitter size={28} /></a>
+          <a href="https://linkedin.com/in/vedantxn" target="_blank" className="transition-transform hover:text-primary hover:rotate-15"><FaLinkedin size={28} /></a>
+          <a href="https://kaggle.com/vedantxn" target="_blank" className="transition-transform hover:text-primary hover:rotate-15"><FaKaggle size={28} /></a>
+          <a href="https://leetcode.com/vedantxn" target="_blank" className="transition-transform hover:text-primary hover:rotate-15"><SiLeetcode size={28} /></a>
+          <a href="https://youtube.com/@vedthetank" target="_blank" className="transition-transform hover:text-primary hover:rotate-15"><FaYoutube size={28} /></a>
+          <a href="https://spotify.com/user/vedantxn" target="_blank" className="transition-transform hover:text-primary hover:rotate-15"><FaSpotify size={28} /></a>
+          <a href="https://medium.com/@vedantxn" target="_blank" className="transition-transform hover:text-primary hover:rotate-15"><FaMedium size={28} /></a>
         </div>
       </section>
     </div>

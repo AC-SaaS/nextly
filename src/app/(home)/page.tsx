@@ -9,7 +9,6 @@ import BlurText from "@/components/21stdev/blur-text";
 // import TextPressure from "@/components/21stdev/TextPressure";
 // import { ProjectsList } from "@/modules/home/ui/components/projects-list";
 
-
 const Page = () => {
   return (
     <div className="flex flex-col max-w-5xl mx-auto w-full bg-transparent">
