@@ -13,10 +13,9 @@ import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
-import { PROJECT_TEMPLATES } from "../../constants";
 import { useClerk } from "@clerk/nextjs";
 import { Brain } from "lucide-react";
-//import { Socials } from "./socials";
+import { PoweredBy } from "./prompt-su";
 
 // Liquid glass wrapper
 const GlassEffect: React.FC<{ children: React.ReactNode; className?: string }> = ({
@@ -82,9 +81,9 @@ export const ProjectForm = () => {
     await createProject.mutateAsync({ value: values.value });
   };
 
-  const onSelect = (value: string) => {
-    form.setValue("value", value, { shouldDirty: true, shouldValidate: true, shouldTouch: true });
-  };
+  // const onSelect = (value: string) => {
+  //   form.setValue("value", value, { shouldDirty: true, shouldValidate: true, shouldTouch: true });
+  // };
 
   const [isFocused, setIsFocused] = useState(false);
   const isPending = createProject.isPending;
@@ -186,7 +185,7 @@ export const ProjectForm = () => {
           </form>
         </GlassEffect>
 
-        <div className="flex-wrap justify-center gap-2 hidden md:flex mt-4">
+        {/* <div className="flex-wrap justify-center gap-2 hidden md:flex mt-4">
           {PROJECT_TEMPLATES.map((template) => (
             <Button
               key={template.prompt}
@@ -198,32 +197,9 @@ export const ProjectForm = () => {
                 {template.emoji} {template.title}
               </Button>
           ))}
-        </div>
-        {/* <Socials /> */}
+        </div> */}
+        <PoweredBy />
       </section>
-
-      {/* Light mode adjustments */}
-      <style jsx global>{`
-        /* Scrollbar for textarea */
-        textarea::-webkit-scrollbar {
-          width: 8px;
-        }
-        textarea::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        textarea::-webkit-scrollbar-thumb {
-          background: rgba(96, 165, 250, 0.5);
-          border-radius: 9999px;
-        }
-        textarea::-webkit-scrollbar-thumb:hover {
-          background: rgba(96, 165, 250, 0.7);
-        }
-        /* Ensure light mode text is visible */
-        .light-mode textarea {
-          color: #1f2937; /* dark text for light background */
-          caret-color: #3b82f6;
-        }
-      `}</style>
     </Form>
   );
 };

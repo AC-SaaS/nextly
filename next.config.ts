@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "seeklogo.com", // optional
       },
+      {
+        protocol: "https",
+        hostname: "framerusercontent.com", // optional
+      },
     ],
   },
   /* config options here */
