@@ -19,25 +19,26 @@ interface AgentState {
   files: { [path: string]: string };
 }
 
-  // const parseAgentOutput = (value: Message[]) => {
-  //   const output = value[0];
-    
-  //   if (output.type !== "text") {
-  //     return "Fragment";
-  //   }
-  //   if (Array.isArray(output.content)) {
-  //     return output.content.map((txt) => txt.text).join(" ");
-  //   } else {
-  //     return output.content;
-  //   }
-  // }
-
-
 export const codeAgentFunction = inngest.createFunction(
   { id: "code-agent" },
   { event: "code-agent/run" },
   async ({ event, step }) => {
 
+    // --- Safe type-safe model selection ---
+    type ModelKey = "grok-4-fast" | "gpt-5-codex" | "gemini-2.5-flash";
+    const modelMapping: Record<ModelKey, string | undefined> = {
+      "grok-4-fast": process.env.OPENAI_FREE_MODEL,
+      "gpt-5-codex": process.env.OPENAI_OPENAI_MODEL,
+      "gemini-2.5-flash": process.env.OPENAI_GEMINI_MODEL,
+    };
+    const selectedModel = (event.data.selectedModel as ModelKey) || "grok-4-fast";
+    const chosenModel = modelMapping[selectedModel];
+
+    // DEBUGGING
+    // if (!chosenModel) {
+    //   throw new Error(`Selected model "${selectedModel}" is not configured in environment variables!`);
+    // }
+    
     const sandboxId = await step.run("get-sandbox-id", async () => {
       const sandbox = await Sandbox.create("vedant-lovable-test-1");
       await sandbox.setTimeout(SANDBOX_TIMEOUT);
@@ -52,7 +53,7 @@ export const codeAgentFunction = inngest.createFunction(
           projectId: event.data.projectId,
         },
         orderBy: {
-          createdAt: "desc", //channge it to asc if AI hallucinates lol
+          createdAt: "desc",
         },
         take: 5,
       });
@@ -65,9 +66,9 @@ export const codeAgentFunction = inngest.createFunction(
         });
       }
 
-      return formattedMessages.reverse(); //use .()revrese for correct order
+      return formattedMessages.reverse();
     });
- 
+
     const state = createState<AgentState>({
       summary: "",
       files: {},
@@ -75,17 +76,14 @@ export const codeAgentFunction = inngest.createFunction(
       { messages: previousMessages },
     );
 
-    
-
     const codeAgent = createAgent<AgentState>({
       name: "codeAgent",
       description: "An expert coding angent",
       system: PROMPT,
       model: openai({
-        model: process.env.OPENAI_MODEL ?? "x-ai/grok-4-fast:free",
+        model: chosenModel ?? "x-ai/grok-4-fast:free",
         apiKey: process.env.OPENAI_API_KEY,
         baseUrl: process.env.OPENAI_API_BASE,
-
         defaultParameters: { temperature: 0.1 },
       }),
 
@@ -97,7 +95,7 @@ export const codeAgentFunction = inngest.createFunction(
             command: z.string(),
           }),
           handler: async ({ command }, { step }) => {
-            return await step?.run("terminal,", async () => {
+            return await step?.run("terminal", async () => {
               const buffers = { stdout: "", stderr: "" };
               
               try {
@@ -133,11 +131,6 @@ export const codeAgentFunction = inngest.createFunction(
             ),
           }),
           handler: async ({ files }, { step, network }: Tool.Options<AgentState>) => {
-            /*
-             * {
-             * "/app.tsx" : <p>app page</p>,
-             * }
-             */
             const newFiles = await step?.run("createOrUpdateFiles", async () => {
               try{
                 const updatedFiles = network.state.data.files || {};
@@ -219,7 +212,7 @@ export const codeAgentFunction = inngest.createFunction(
       description: "A fragment title generator",
       system: PROMPT,
       model: openai({
-        model: process.env.OPENAI_MODEL ?? "x-ai/grok-4-fast:free",
+        model: process.env.OPENAI_FREE2_MODEL ?? "x-ai/grok-4-fast:free",
         apiKey: process.env.OPENAI_API_KEY,
         baseUrl: process.env.OPENAI_API_BASE,
         defaultParameters: { temperature: 0.1 },
@@ -231,7 +224,7 @@ export const codeAgentFunction = inngest.createFunction(
       description: "A response generator",
       system: RESPONSE_PROMPT,
       model: openai({
-        model: process.env.OPENAI_MODEL ?? "x-ai/grok-4-fast:free",
+        model: process.env.OPENAI_FREE2_MODEL ?? "x-ai/grok-4-fast:free",
         apiKey: process.env.OPENAI_API_KEY,
         baseUrl: process.env.OPENAI_API_BASE,
         defaultParameters: { temperature: 0.1 },
@@ -240,12 +233,6 @@ export const codeAgentFunction = inngest.createFunction(
 
     const { output: fragmentTitleOutput } = await fragmentTitleGenerator.run(result.state.data.summary);
     const { output: responseOutput } = await responseGenerator.run(result.state.data.summary);
-
-    // Alternate version                              | 
-    // const generateFragmentTItle = () => {          |
-    //   const output = fragmentTitleOutput[0];       |  
-    // }                                             \/
-
 
     const isError = 
       !result.state.data.summary || Object.keys(result.state.data.files || {}).length === 0;
@@ -261,7 +248,7 @@ export const codeAgentFunction = inngest.createFunction(
         return await prisma.message.create({
           data: {
             projectId: event.data.projectId,
-            content: "Error: " + result.state.data.summary, //something went wrong, pls try again,
+            content: "Error: " + result.state.data.summary,
             role: "ASSISTANT",
             type: "ERROR",
           },

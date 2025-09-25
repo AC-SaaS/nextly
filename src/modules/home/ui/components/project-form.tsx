@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextareaAutosize from "react-textarea-autosize";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { z } from "zod";
 import { ArrowUpIcon, Loader2Icon } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,25 +13,23 @@ import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
-import { useClerk } from "@clerk/nextjs";
-import { Brain } from "lucide-react";
+import { useClerk, useAuth } from "@clerk/nextjs";
+import { SiGooglegemini, SiOpenai } from "react-icons/si";
+import { FcGoogle } from "react-icons/fc";
 import { PoweredBy } from "./prompt-su";
+import { createPortal } from "react-dom";
+import ShinyText from "@/components/ShinyText";
 
-// Liquid glass wrapper
+// Glass effect wrapper
 const GlassEffect: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
   className = "",
 }) => (
   <div className={`relative overflow-hidden rounded-3xl ${className}`}>
-    {/* Backdrop blur */}
     <div
       className="absolute inset-0 z-0 rounded-3xl"
-      style={{
-        backdropFilter: "blur(14px)",
-        background: "rgba(255, 255, 255, 0.15)",
-      }}
+      style={{ backdropFilter: "blur(14px)", background: "rgba(255,255,255,0.15)" }}
     />
-    {/* Inner shadows */}
     <div
       className="absolute inset-0 z-10 rounded-3xl"
       style={{
@@ -43,6 +41,7 @@ const GlassEffect: React.FC<{ children: React.ReactNode; className?: string }> =
   </div>
 );
 
+// Zod schema
 const formSchema = z.object({
   value: z
     .string()
@@ -50,11 +49,22 @@ const formSchema = z.object({
     .max(5000, { message: "Message cannot be longer than 5000 characters" }),
 });
 
+// Model type
+type Model = {
+  name: string;
+  label: string;
+  icon: React.ReactNode | null;
+  isPro: boolean;
+};
+
 export const ProjectForm = () => {
   const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const clerk = useClerk();
+  const { has } = useAuth();
+
+  const hasProAccess = has?.({ plan: "pro" }) ?? false;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -77,18 +87,42 @@ export const ProjectForm = () => {
     })
   );
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await createProject.mutateAsync({ value: values.value });
-  };
-
-  // const onSelect = (value: string) => {
-  //   form.setValue("value", value, { shouldDirty: true, shouldValidate: true, shouldTouch: true });
-  // };
-
   const [isFocused, setIsFocused] = useState(false);
   const isPending = createProject.isPending;
   const isButtonDisabled = isPending || !form.formState.isValid;
-  const [deepThinking, setDeepThinking] = useState(false);
+
+  // Model selector
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<Model>({
+    name: "grok-4-fast",
+    label: "Grok 4 Fast",
+    icon: null,
+    isPro: false,
+  });
+
+  const models: Model[] = [
+    { name: "gpt-5-thinking", label: "GPT-5 (Thinking)", icon: <SiOpenai />, isPro: true },
+    { name: "gemini-2.5-flash", label: "Gemini-2.5 Flash", icon: <FcGoogle />, isPro: true },
+    { name: "grok-4-fast", label: "Grok 4 Fast", icon: null, isPro: false },
+  ];
+
+  type SubmitData = z.infer<typeof formSchema> & { model: string };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const data: SubmitData = { ...values, model: selectedModel.name };
+    await createProject.mutateAsync(data);
+  };
+
+  // Dropdown position
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const [dropdownCoords, setDropdownCoords] = useState({ top: 0, left: 0, width: 0 });
+
+  useEffect(() => {
+    if (dropdownOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownCoords({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+    }
+  }, [dropdownOpen]);
 
   return (
     <Form {...form}>
@@ -122,38 +156,33 @@ export const ProjectForm = () => {
                       form.handleSubmit(onSubmit)(e);
                     }
                   }}
-                  style={{
-                    scrollbarColor: "#60a5fa66 transparent",
-                  }}
+                  style={{ scrollbarColor: "#60a5fa66 transparent" }}
                 />
               )}
             />
 
-            <div className="flex items-center justify-between gap-x-2">
-              {/* Left side: Deep Thinking toggle */}
-              <button
-                type="button"
-                onClick={() => setDeepThinking((prev) => !prev)}
+            <div className="flex items-center justify-between gap-x-2 relative">
+              {/* Left side: Model selector */}
+              <div
+                ref={buttonRef}
                 className={cn(
-                  "relative group flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium transition-all",
-                  "backdrop-blur-md border shadow-sm",
-                  deepThinking
-                    ? "bg-primary text-primary-foreground border-primary/50 shadow-md scale-105"
+                  "relative group flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium transition-all backdrop-blur-md border shadow-sm cursor-pointer",
+                  selectedModel.isPro
+                    ? hasProAccess
+                      ? "bg-primary text-primary-foreground border-primary/50 shadow-md scale-105"
+                      : "bg-white/20 dark:bg-white/10 border-white/20 text-muted-foreground cursor-not-allowed"
                     : "bg-white/20 dark:bg-white/10 border-white/20 text-muted-foreground hover:bg-white/30"
                 )}
+                onClick={() => setDropdownOpen((prev) => !prev)}
               >
-                <Brain
-                  className={cn(
-                    "size-3 transition-transform duration-300",
-                    deepThinking ? "rotate-12 text-primary-foreground" : "text-primary"
-                  )}
-                />
-                Deep Thinking
-                {/* Tooltip on hover */}
+                {selectedModel.icon && <span className="size-3">{selectedModel.icon}</span>}
+                {selectedModel.label}
+
+                {/* Tooltip */}
                 <span className="absolute bottom-full mb-1 hidden group-hover:block text-[9px] text-muted-foreground bg-white/80 dark:bg-black/80 px-2 py-0.5 rounded-md shadow-sm whitespace-nowrap">
-                  use when you want more in-depth reasoning
+                  Select a model to use
                 </span>
-              </button>
+              </div>
 
               {/* Right side: kbd + send button */}
               <div className="flex items-center gap-x-2">
@@ -181,23 +210,68 @@ export const ProjectForm = () => {
                   )}
                 </Button>
               </div>
+
+
+              {dropdownOpen && buttonRef.current &&
+                createPortal(
+                  <div
+                    className="rounded-xl bg-background/95 backdrop-blur-md border border-border shadow-lg overflow-hidden min-w-[250px] z-[9999]"
+                    style={{
+                      position: "absolute",
+                      top: dropdownCoords.top + window.scrollY,
+                      left: dropdownCoords.left + window.scrollX,
+                      width: Math.max(dropdownCoords.width, 250),
+                    }}
+                  >
+                    {models.map((model) => {
+                      const disabled = model.isPro && !hasProAccess;
+                      const isBest = model.name === "gpt-5-thinking";
+
+                      return (
+                        <button
+                          key={model.name}
+                          type="button"
+                          disabled={disabled}
+                          onClick={() => {
+                            if (!disabled) setSelectedModel(model);
+                            setDropdownOpen(false);
+                          }}
+                          className={cn(
+                            "flex flex-col w-full px-4 py-3 text-left transition-all duration-150 rounded-lg",
+                            disabled
+                              ? "text-muted-foreground cursor-not-allowed opacity-60"
+                              : "text-foreground hover:bg-primary/10 hover:scale-[1.01]"
+                          )}
+                        >
+                          <div className="flex items-center gap-2">
+                            {model.icon && <span className="size-4">{model.icon}</span>}
+                            <span className="font-medium">{model.label}</span>
+                            {isBest && <span className="text-yellow-400 text-sm">⭐</span>}
+                            {model.isPro && (
+                              <span className="ml-2 px-1.5 py-0.5 text-[9px] font-bold rounded bg-primary text-primary-foreground">
+                                PRO
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-muted-foreground pl-6 mt-0.5">
+                            {model.name === "gpt-5-thinking" && "Best for deep reasoning"}
+                            {model.name === "gemini-2.5-flash" && "Google-powered fast model"}
+                            {model.name === "grok-4-fast" && "Lightweight and free"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                    
+                  </div>,
+                  document.body
+                )
+              }
+              
             </div>
           </form>
         </GlassEffect>
+        <ShinyText text="Better the prompt → Better the result"  />
 
-        {/* <div className="flex-wrap justify-center gap-2 hidden md:flex mt-4">
-          {PROJECT_TEMPLATES.map((template) => (
-            <Button
-              key={template.prompt}
-              variant="outline"
-              size="sm"
-              className="bg-white/25 dark:bg-neutral-900/20 backdrop-blur-md border border-white/30 hover:bg-primary/40 border-primary/20 shadow-sm hover:scale-105"
-              onClick={() => onSelect(template.prompt)}
-              >
-                {template.emoji} {template.title}
-              </Button>
-          ))}
-        </div> */}
         <PoweredBy />
       </section>
     </Form>
