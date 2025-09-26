@@ -4,15 +4,18 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextareaAutosize from "react-textarea-autosize";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { z } from "zod";
-import { ArrowUpIcon, Loader2Icon, Brain } from "lucide-react";
+import { ArrowUpIcon, Loader2Icon } from "lucide-react";
+import { SiOpenai, SiGoogle } from "react-icons/si";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { Usage } from "./usage";
+import { useAuth } from "@clerk/nextjs";
+import { createPortal } from "react-dom";
 
 interface Props {
   projectId: string;
@@ -48,8 +51,8 @@ const formSchema = z.object({
 export const MessageForm = ({ projectId }: Props) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const [isFocused, setIsFocused] = useState(false);
-  const [deepThinking, setDeepThinking] = useState(false);
+  const { has } = useAuth();
+  const hasProAccess = has?.({ plan: "pro" });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,22 +73,44 @@ export const MessageForm = ({ projectId }: Props) => {
     })
   );
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await createMessage.mutateAsync({ value: values.value, projectId });
-  };
-
   const isPending = createMessage.isPending;
   const isButtonDisabled = isPending || !form.formState.isValid;
+
+  // MODEL SELECTOR
+  const models = [
+    { name: "codex", label: "GPT-5 (Codex)", icon: <SiOpenai />, isPro: true, description: "Best for deep reasoning" },
+    { name: "gemini", label: "Gemini-2.5 Flash", icon: <SiGoogle />, isPro: true, description: "Google-powered fast model" },
+    { name: "grok", label: "Grok 4 Fast", icon: null, isPro: false, description: "Lightweight and free, suitable for everyone" },
+  ];
+
+  const [selectedModel, setSelectedModel] = useState(models[2]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [dropdownCoords, setDropdownCoords] = useState({ top: 0, left: 0, width: 0 });
+
+  useEffect(() => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownCoords({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+    }
+  }, [dropdownOpen]);
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    await createMessage.mutateAsync({
+      value: values.value,
+      projectId,
+      model: selectedModel.name as "grok" | "codex" | "gemini",
+    });
+  };
 
   return (
     <Form {...form}>
       {usage && <Usage points={usage.remainingPoints} msBeforeNext={usage.msBeforeNext} />}
-
       <section className="flex flex-col items-center w-full">
         <GlassEffect
           className={cn(
             "w-full max-w-3xl p-6 transition-all duration-500 border border-primary/20 shadow-lg",
-            isFocused && "scale-[1.01] ring-2 ring-primary/40"
+            form.formState.isDirty && "scale-[1.01] ring-2 ring-primary/40"
           )}
         >
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 relative">
@@ -95,8 +120,7 @@ export const MessageForm = ({ projectId }: Props) => {
               render={({ field }) => (
                 <TextareaAutosize
                   {...field}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
+                  onFocus={() => setDropdownOpen(false)}
                   disabled={isPending}
                   minRows={2}
                   maxRows={8}
@@ -110,31 +134,73 @@ export const MessageForm = ({ projectId }: Props) => {
             />
 
             <div className="flex items-center justify-between gap-x-2">
-              {/* Deep Thinking Toggle */}
-              <button
-                type="button"
-                onClick={() => setDeepThinking((prev) => !prev)}
-                className={cn(
-                  "relative group flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium transition-all",
-                  "backdrop-blur-md border shadow-sm",
-                  deepThinking
-                    ? "bg-primary text-primary-foreground border-primary/50 shadow-md scale-105"
-                    : "bg-white/20 dark:bg-white/10 border-white/20 text-muted-foreground hover:bg-white/30"
-                )}
-              >
-                <Brain
-                  className={cn(
-                    "size-3 transition-transform duration-300",
-                    deepThinking ? "rotate-12 text-primary-foreground" : "text-primary"
-                  )}
-                />
-                Deep Thinking
-                <span className="absolute bottom-full mb-1 hidden group-hover:block text-[9px] text-muted-foreground bg-white/80 dark:bg-black/80 px-2 py-0.5 rounded-md shadow-sm whitespace-nowrap">
-                  use for more in-depth reasoning
-                </span>
-              </button>
+              {/* MODEL SELECTOR */}
+              <div className="relative">
+                <button
+                  type="button"
+                  ref={buttonRef}
+                  onClick={() => setDropdownOpen((prev) => !prev)}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md border shadow-sm bg-white/20 dark:bg-white/10 border-white/20 text-foreground hover:bg-white/30 transition-all"
+                >
+                  {selectedModel.icon && <span className="size-4">{selectedModel.icon}</span>}
+                  <span className="font-medium">{selectedModel.label}</span>
+                  {selectedModel.isPro && <span className="ml-2 px-1.5 py-0.5 text-[9px] font-bold rounded bg-primary text-primary-foreground">PRO</span>}
+                </button>
+                {dropdownOpen && buttonRef.current &&
+                  createPortal(
+                    <div
+                      ref={(el) => {
+                        if (!el) return;
+                        const rect = buttonRef.current!.getBoundingClientRect();
+                        const scrollY = window.scrollY;
+                        el.style.top = `${rect.top + scrollY - el.offsetHeight}px`; // open above button
+                        el.style.left = `${rect.left + window.scrollX}px`;
+                        el.style.width = `${Math.max(rect.width, 220)}px`;
+                      }}
+                      className="rounded-xl bg-background/95 backdrop-blur-md border border-border shadow-lg overflow-hidden min-w-[220px] z-[9999]"
+                      style={{ position: "absolute" }}
+                    >
+                      {models.map((model) => {
+                        const disabled = model.isPro && !hasProAccess;
+                        const isBest = model.name === "codex";
 
-              {/* Submit */}
+                        return (
+                          <button
+                            key={model.name}
+                            type="button"
+                            disabled={disabled}
+                            onClick={() => {
+                              if (!disabled) setSelectedModel(model);
+                              setDropdownOpen(false);
+                            }}
+                            className={cn(
+                              "flex flex-col w-full px-2 py-1.5 text-left transition-all duration-150 rounded-md",
+                              disabled
+                                ? "text-muted-foreground cursor-not-allowed opacity-60"
+                                : "text-foreground hover:bg-primary/10 hover:scale-[1.01]"
+                            )}
+                          >
+                            <div className="flex items-center gap-1.5 text-xs">
+                              {model.icon && <span className="size-3">{model.icon}</span>}
+                              <span className="font-medium">{model.label}</span>
+                              {isBest && <span className="text-yellow-400 text-[10px]">⭐</span>}
+                            </div>
+                            <span className="text-[8px] text-muted-foreground pl-4 mt-0.5">
+                              {model.name === "codex" && "Best for deep reasoning"}
+                              {model.name === "gemini" && "Google-powered fast model"}
+                              {model.name === "grok" && "Lightweight and free"}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>,
+                    document.body
+                  )
+                }
+
+              </div>
+
+              {/* SUBMIT BUTTON */}
               <div className="flex items-center gap-x-2">
                 <div className="text-[10px] text-muted-foreground font-sans">
                   <kbd className="inline-flex h-5 select-none items-center gap-x-1 rounded border border-primary/20 bg-primary/10 px-1.5 font-mono text-[10px] font-medium backdrop-blur-sm">
