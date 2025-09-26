@@ -50,6 +50,7 @@ export const projectsRouter = createTRPCRouter({
         value: z.string()
           .min(1, "Prompt cannot be empty")
           .max(1000, "Prompt cannot be longer than 1000 characters"),
+        model: z.enum(["grok", "codex", "gemini"])
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -82,7 +83,8 @@ export const projectsRouter = createTRPCRouter({
         name: "code-agent/run",
         data: { 
             value: input.value,
-            projectId: createdProject.id 
+            projectId: createdProject.id,
+            model: input.model
         },
       });
 

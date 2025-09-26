@@ -53,7 +53,6 @@ export const MessageForm = ({ projectId }: Props) => {
   const queryClient = useQueryClient();
   const { has } = useAuth();
   const hasProAccess = has?.({ plan: "pro" });
-  const [prompt, setPrompt] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -79,9 +78,9 @@ export const MessageForm = ({ projectId }: Props) => {
 
   // MODEL SELECTOR
   const models = [
-    { name: "gpt-5-thinking", label: "GPT-5 (Thinking)", icon: <SiOpenai />, isPro: true, description: "Best for deep reasoning" },
-    { name: "gemini-2.5-flash", label: "Gemini-2.5 Flash", icon: <SiGoogle />, isPro: true, description: "Google-powered fast model" },
-    { name: "grok-4-fast", label: "Grok 4 Fast", icon: null, isPro: false, description: "Lightweight and free, suitable for everyone" },
+    { name: "codex", label: "GPT-5 (Codex)", icon: <SiOpenai />, isPro: true, description: "Best for deep reasoning" },
+    { name: "gemini", label: "Gemini-2.5 Flash", icon: <SiGoogle />, isPro: true, description: "Google-powered fast model" },
+    { name: "grok", label: "Grok 4 Fast", icon: null, isPro: false, description: "Lightweight and free, suitable for everyone" },
   ];
 
   const [selectedModel, setSelectedModel] = useState(models[2]);
@@ -97,7 +96,11 @@ export const MessageForm = ({ projectId }: Props) => {
   }, [dropdownOpen]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await createMessage.mutateAsync({ value: values.value, projectId });
+    await createMessage.mutateAsync({
+      value: values.value,
+      projectId,
+      model: selectedModel.name as "grok" | "codex" | "gemini",
+    });
   };
 
   return (
@@ -159,7 +162,7 @@ export const MessageForm = ({ projectId }: Props) => {
                     >
                       {models.map((model) => {
                         const disabled = model.isPro && !hasProAccess;
-                        const isBest = model.name === "gpt-5-thinking";
+                        const isBest = model.name === "codex";
 
                         return (
                           <button
@@ -183,9 +186,9 @@ export const MessageForm = ({ projectId }: Props) => {
                               {isBest && <span className="text-yellow-400 text-[10px]">⭐</span>}
                             </div>
                             <span className="text-[8px] text-muted-foreground pl-4 mt-0.5">
-                              {model.name === "gpt-5-thinking" && "Best for deep reasoning"}
-                              {model.name === "gemini-2.5-flash" && "Google-powered fast model"}
-                              {model.name === "grok-4-fast" && "Lightweight and free"}
+                              {model.name === "codex" && "Best for deep reasoning"}
+                              {model.name === "gemini" && "Google-powered fast model"}
+                              {model.name === "grok" && "Lightweight and free"}
                             </span>
                           </button>
                         );

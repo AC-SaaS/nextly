@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { useClerk, useAuth } from "@clerk/nextjs";
-import { SiGooglegemini, SiOpenai } from "react-icons/si";
+import { SiOpenai } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
 import { PoweredBy } from "./prompt-su";
 import { createPortal } from "react-dom";
@@ -94,22 +94,22 @@ export const ProjectForm = () => {
   // Model selector
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState<Model>({
-    name: "grok-4-fast",
+    name: "grok",
     label: "Grok 4 Fast",
     icon: null,
     isPro: false,
   });
 
   const models: Model[] = [
-    { name: "gpt-5-thinking", label: "GPT-5 (Thinking)", icon: <SiOpenai />, isPro: true },
-    { name: "gemini-2.5-flash", label: "Gemini-2.5 Flash", icon: <FcGoogle />, isPro: true },
-    { name: "grok-4-fast", label: "Grok 4 Fast", icon: null, isPro: false },
+    { name: "grok", label: "Grok 4 Fast", icon: null, isPro: false },
+    { name: "codex", label: "GPT-5 (Codex)", icon: <SiOpenai />, isPro: true },
+    { name: "gemini", label: "Gemini-2.5 Flash", icon: <FcGoogle />, isPro: true },
   ];
 
-  type SubmitData = z.infer<typeof formSchema> & { model: string };
+  type SubmitData = z.infer<typeof formSchema> & { model: "grok" | "codex" | "gemini" };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const data: SubmitData = { ...values, model: selectedModel.name };
+    const data: SubmitData = { ...values, model: selectedModel.name as "grok" | "codex" | "gemini"};
     await createProject.mutateAsync(data);
   };
 
@@ -225,7 +225,7 @@ export const ProjectForm = () => {
                   >
                     {models.map((model) => {
                       const disabled = model.isPro && !hasProAccess;
-                      const isBest = model.name === "gpt-5-thinking";
+                      const isBest = model.name === "codex";
 
                       return (
                         <button
@@ -254,9 +254,9 @@ export const ProjectForm = () => {
                             )}
                           </div>
                           <span className="text-[10px] text-muted-foreground pl-6 mt-0.5">
-                            {model.name === "gpt-5-thinking" && "Best for deep reasoning"}
-                            {model.name === "gemini-2.5-flash" && "Google-powered fast model"}
-                            {model.name === "grok-4-fast" && "Lightweight and free"}
+                            {model.name === "codex" && "Best for deep reasoning"}
+                            {model.name === "gemini" && "Google-powered fast model"}
+                            {model.name === "grok" && "Lightweight and free"}
                           </span>
                         </button>
                       );

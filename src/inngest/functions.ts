@@ -9,7 +9,7 @@ import { openai,
 import { Sandbox } from "e2b";
 import { getSandboxId, lastAssistantTextMessageContent } from "./utils";
 import z from "zod";
-import { PROMPT, RESPONSE_PROMPT } from "@/prompt";
+import { FRAGMENT_TITLE_PROMPT, PROMPT, RESPONSE_PROMPT } from "@/prompt";
 import prisma from "@/lib/db";
 import { parseAgentOutput } from "./utils";
 import { SANDBOX_TIMEOUT } from "./types";
@@ -25,14 +25,15 @@ export const codeAgentFunction = inngest.createFunction(
   async ({ event, step }) => {
 
     // --- Safe type-safe model selection ---
-    type ModelKey = "grok-4-fast" | "gpt-5-codex" | "gemini-2.5-flash";
+    type ModelKey = "grok" | "codex" | "gemini";
     const modelMapping: Record<ModelKey, string | undefined> = {
-      "grok-4-fast": process.env.OPENAI_FREE_MODEL,
-      "gpt-5-codex": process.env.OPENAI_OPENAI_MODEL,
-      "gemini-2.5-flash": process.env.OPENAI_GEMINI_MODEL,
+      "grok": "x-ai/grok-4-fast:free",
+      "codex": "openai/gpt-5-codex",
+      "gemini": "google/gemini-2.5-flash",
     };
-    const selectedModel = (event.data.selectedModel as ModelKey) || "grok-4-fast";
+    const selectedModel = (event.data.model as ModelKey); // use model not selectedModel
     const chosenModel = modelMapping[selectedModel];
+
 
     // DEBUGGING
     // if (!chosenModel) {
@@ -210,7 +211,7 @@ export const codeAgentFunction = inngest.createFunction(
     const fragmentTitleGenerator = createAgent({
       name: "fragment-title-generator",
       description: "A fragment title generator",
-      system: PROMPT,
+      system: FRAGMENT_TITLE_PROMPT,
       model: openai({
         model: process.env.OPENAI_FREE2_MODEL ?? "x-ai/grok-4-fast:free",
         apiKey: process.env.OPENAI_API_KEY,
