@@ -9,22 +9,22 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "logos-world.net", // optional, in case you grab more logos later
+        hostname: "logos-world.net",
       },
       {
         protocol: "https",
-        hostname: "seeklogo.com", // optional
+        hostname: "seeklogo.com",
       },
       {
         protocol: "https",
-        hostname: "framerusercontent.com", // optional
+        hostname: "framerusercontent.com",
       },
     ],
   },
-  /* config options here */
-  // eslint: {
-  //   ignoreDuringBuilds: true,
-  // }
+  /* Disable ESLint warnings only during production builds */
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
