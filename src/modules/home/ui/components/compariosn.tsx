@@ -139,7 +139,7 @@ const ComparisonFeature: React.FC = () => {
                 {/* Before Image */}
                 <div className="absolute inset-0 w-full h-full">
                   <Image
-                    src="https://framerusercontent.com/images/Eb9Y1iduWcOd3e4hLSJJtL9Rg.jpg"
+                    src="/after-image.png"
                     alt="Other AI Tools Result"
                     fill
                     className="object-cover"
@@ -158,7 +158,7 @@ const ComparisonFeature: React.FC = () => {
                   }}
                 >
                   <Image
-                    src="https://framerusercontent.com/images/w2fbgpK5XbA8dcXjol9h7rNB4Lo.png"
+                    src="/before-image.png"
                     alt="Nextly Result"
                     fill
                     className="object-cover"

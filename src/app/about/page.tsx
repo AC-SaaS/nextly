@@ -73,7 +73,7 @@ const Page = () => {
           <div className="space-y-8 mb-12">
             <div className="border-l-4 border-primary pl-6 py-2">
               <p className="text-lg leading-relaxed text-muted-foreground">
-                I'm not from the <span className="text-primary font-medium">"right school."</span> I didn't inherit wealth, status, or a golden ticket into the tech world. I'm a <span className="text-foreground font-semibold">college dropout</span> who decided that instead of waiting for permission, I'd build my own future with nothing but curiosity, stubbornness, and code.
+                I'm not from the <span className="text-primary font-medium">"right school."</span> I didn&apos;t inherit wealth&lsquo; status, or a golden ticket into the tech world. I'm a <span className="text-foreground font-semibold">college dropout</span> who decided that instead of waiting for permission, I'd build my own future with nothing but curiosity, stubbornness, and code.
               </p>
             </div>
 

@@ -18,31 +18,31 @@ export const Footer = () => {
     {
       name: "GitHub",
       icon: FaGithub,
-      href: "https://github.com/vedant",
+      href: "https://github.com/vedantxn",
       color: "hover:text-gray-900 dark:hover:text-gray-100"
     },
     {
       name: "LinkedIn",
       icon: FaLinkedin,
-      href: "https://linkedin.com/in/vedant",
+      href: "https://linkedin.com/in/vedantxn",
       color: "hover:text-blue-600"
     },
     {
       name: "X",
       icon: FaXTwitter,
-      href: "https://x.com/vedant",
+      href: "https://x.com/vedantxn",
       color: "hover:text-gray-900 dark:hover:text-gray-100"
     },
     {
       name: "YouTube",
       icon: FaYoutube,
-      href: "https://youtube.com/@vedant",
+      href: "https://youtube.com/@vedthetank",
       color: "hover:text-red-600"
     },
     {
       name: "Spotify",
       icon: FaSpotify,
-      href: "https://spotify.com/vedant",
+      href: "https://spotify.com/vedantxn",
       color: "hover:text-green-500"
     }
   ];

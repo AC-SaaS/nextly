@@ -11,11 +11,12 @@ import { HowItWorksSection } from "@/modules/home/ui/components/tagline";
 //import { DemoScrollStack } from "@/modules/home/ui/components/feature-stack";
 import ComparisonFeature from "@/modules/home/ui/components/compariosn";
 //import  ScrambledText  from "@/components/ScrambledText";
-import { SocialsHome } from "@/modules/home/ui/components/socials-home";
+//import { SocialsHome } from "@/modules/home/ui/components/socials-home";
 import { Loader2 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { ProjectsList } from "@/modules/home/ui/components/projects-list";
 import { Features } from "@/modules/home/ui/components/features-bento";
+
 
 const Page = () => {
   const { isSignedIn, isLoaded } = useUser();
@@ -47,7 +48,7 @@ const Page = () => {
           className="font-bold text-4xl md:text-5xl text-center transition-all duration-300 pl-4"
         />  
         <p className="text-lg md:text-xl text-muted-foreground text-center hover:italic">
-          From prompt to production-ready code — powered with <strong className="text-primary italic">AI</strong>
+          From prompt to production-ready code — powered by <strong className="text-primary italic">AI</strong>
         </p>
         <div className="max-w-3xl mx-auto w-full">
           <ProjectForm />
@@ -62,6 +63,32 @@ const Page = () => {
             <HowItWorksSection /> 
             <ComparisonFeature />
             <Features />
+            {/* START: Professional Text Section */}
+            <div className="flex items-center justify-center w-full">
+              <p className="
+                text-7xl 
+                font-semibold 
+                text-center 
+                tracking-tighter 
+                cursor-pointer 
+                
+                /* Default State: A professional, muted gray */
+                text-foreground 
+                
+                /* Smooth Transition for all properties */
+                transition-all 
+                duration-300 
+                ease-in-out
+                
+                /* Hover State: Changes to your primary color and lifts up */
+                hover:text-primary
+                hover:-translate-y-2
+              ">
+                Stop Dreaming. Start Building.
+              </p>
+            </div>
+            {/* END: Professional Text Section */}
+
           </>
         )}
       </section>
