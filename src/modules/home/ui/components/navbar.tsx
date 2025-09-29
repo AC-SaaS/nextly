@@ -28,7 +28,7 @@ export const Navbar = () => {
 
   const navItems = [
     { name: "Pricing", href: "/pricing" },
-    { name: "Showcase", href: "/showcase" },
+    { name: "Guide", href: "/guide" },
   ];
 
   const resources = [
@@ -38,9 +38,9 @@ export const Navbar = () => {
       description: "Learn more about Nextly and our mission.",
     },
     {
-      title: "Prompting Guide",
-      href: "/guide",
-      description: "Master AI prompting with our in-depth guide.",
+      title: "Showcase",
+      href: "/showcase",
+      description: "Explore our showcase of projects.",
     },
     {
       title: "Terms",
@@ -61,7 +61,7 @@ export const Navbar = () => {
     {
       title: "Support",
       href: "/support",
-      description: "Get help and find answers to your questions.",
+      description: "vedantxn@gmail.com",
     },
   ];
 
@@ -144,7 +144,7 @@ export const Navbar = () => {
                       item.highlight && "text-primary font-semibold"
                     )}
                   >
-                    <span className="text-sm">{item.title}</span>
+                    <span className="text-sm font-medium">{item.title}</span>
                     <span className="text-xs text-muted-foreground">
                       {item.description}
                     </span>
@@ -156,7 +156,7 @@ export const Navbar = () => {
 
           {/* GitHub Icon */}
           <a
-            href="https://github.com/vedantxn/nextable"
+            href="https://github.com/vedantxn/nextly"
             target="_blank"
             rel="noopener noreferrer"
             className="relative group flex items-center justify-center p-1.5 rounded-full hover:bg-primary/10 transition-all duration-300"

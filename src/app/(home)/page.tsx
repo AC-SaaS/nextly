@@ -1,22 +1,16 @@
 "use client";
 
 import ProjectForm from "@/modules/home/ui/components/project-form";
-// import Image from "next/image";
-// import { HeroPill } from "@/components/21stdev/hero-pill";
 import { Announcement } from "@/components/21stdev/announcement";
 import { AnnouncementTitle } from "@/components/21stdev/announcement";
-import { ArrowUpRightIcon } from "lucide-react";
+import { ArrowUpRightIcon, ChevronDownIcon } from "lucide-react";
 import BlurText from "@/components/21stdev/blur-text";
 import { HowItWorksSection } from "@/modules/home/ui/components/tagline";
-//import { DemoScrollStack } from "@/modules/home/ui/components/feature-stack";
 import ComparisonFeature from "@/modules/home/ui/components/compariosn";
-//import  ScrambledText  from "@/components/ScrambledText";
-//import { SocialsHome } from "@/modules/home/ui/components/socials-home";
 import { Loader2 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { ProjectsList } from "@/modules/home/ui/components/projects-list";
 import { Features } from "@/modules/home/ui/components/features-bento";
-
 
 const Page = () => {
   const { isSignedIn, isLoaded } = useUser();
@@ -30,17 +24,24 @@ const Page = () => {
     );
   }
 
+  const scrollToContent = () => {
+    window.scrollTo({
+      top: window.innerHeight - 100,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <div className="flex flex-col max-w-5xl mx-auto w-full bg-transparent">
       <section className="space-y-6 py-[16vh] 2xl:py-48">
         <div className="flex flex-col items-center">
           <a href="https://github.com/vedantxn/nextable" target="_blank" rel="noopener noreferrer">
-          <Announcement className="hover:bg-primary hover:text-primary-foreground">
-            <AnnouncementTitle>
-              We are building next big thing
-              <ArrowUpRightIcon size={16} className="shrink-0 text-muted-foreground" />
-            </AnnouncementTitle>
-          </Announcement>
+            <Announcement className="hover:bg-primary hover:text-primary-foreground">
+              <AnnouncementTitle>
+                We are building next big thing
+                <ArrowUpRightIcon size={16} className="shrink-0 text-muted-foreground" />
+              </AnnouncementTitle>
+            </Announcement>
           </a>
         </div>
         <BlurText 
@@ -54,6 +55,19 @@ const Page = () => {
           <ProjectForm />
         </div>
 
+        {/* Simple inline scroll indicator - only for non-signed-in users */}
+        {!isSignedIn && (
+          <div className="flex justify-center">
+            <button
+              onClick={scrollToContent}
+              className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors duration-300 group"
+            >
+              <span className="text-sm font-medium ">Scroll down</span>
+              <ChevronDownIcon className="h-5 w-5 animate-bounce group-hover:scale-110 transition-transform" />
+            </button>
+          </div>
+        )}
+
         {isSignedIn ? (
           <div className="mt-20">
             <ProjectsList />
@@ -63,7 +77,7 @@ const Page = () => {
             <HowItWorksSection /> 
             <ComparisonFeature />
             <Features />
-            {/* START: Professional Text Section */}
+            {/* Professional Text Section */}
             <div className="flex items-center justify-center w-full">
               <p className="
                 text-7xl 
@@ -71,30 +85,20 @@ const Page = () => {
                 text-center 
                 tracking-tighter 
                 cursor-pointer 
-                
-                /* Default State: A professional, muted gray */
                 text-foreground 
-                
-                /* Smooth Transition for all properties */
                 transition-all 
                 duration-300 
                 ease-in-out
-                
-                /* Hover State: Changes to your primary color and lifts up */
-                hover:text-primary
+                hover:underline
                 hover:-translate-y-2
               ">
-                Stop Dreaming. Start Building.
+                Stop Dreaming. <span className="text-primary">Start Building.</span>
               </p>
             </div>
-            {/* END: Professional Text Section */}
-
           </>
         )}
       </section>
-      {/* <Footer /> */}
     </div>
-    
   );
 };
 

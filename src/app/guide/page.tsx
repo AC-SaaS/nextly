@@ -140,7 +140,7 @@ export default function PromptingGuideBlog() {
             </div>
             
             <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-              Whether you're building with GPT-4, Claude, Gemini, or specialized code generation models, the principles outlined in this guide 
+              Whether you're building with GPT-5, Claude, Gemini, or specialized code generation models, the principles outlined in this guide 
               will dramatically improve your results. We'll cover everything from basic prompt structure to advanced techniques used 
               by the world's most effective AI engineers.
             </p>
