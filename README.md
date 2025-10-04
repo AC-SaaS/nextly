@@ -1,4 +1,5 @@
 <div align="center">
+  
   # Nextly
   
   AI-powered Next.js application generator that transforms natural language prompts into production-ready code. From concept to deployment, skip the boilerplate and focus on what makes your project unique.
