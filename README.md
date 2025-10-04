@@ -1,6 +1,4 @@
 <div align="center">
-  <img src="/logo.svg" alt="Nextly Logo" width="120" height="120">
-  
   # Nextly
   
   AI-powered Next.js application generator that transforms natural language prompts into production-ready code. From concept to deployment, skip the boilerplate and focus on what makes your project unique.
